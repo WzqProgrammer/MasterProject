@@ -1,0 +1,38 @@
+.DS_Store
+node_modules
+/dist
+target/
+build/
+all_song_data.json
+
+# local env files
+.env.local
+.env.*.local
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.iws
+*.iml
+*.ipr
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.log
+
+package*
+babel.config.js
+.browserslistrc
