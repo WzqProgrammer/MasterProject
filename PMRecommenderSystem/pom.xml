@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.wzqSystem</groupId>
-    <artifactId>MovieRecommendSystem</artifactId>
+    <artifactId>PMRecommendSystem</artifactId>
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
 
@@ -25,7 +25,7 @@
 
     <modules>
         <module>recommender</module>
-        <module>businessServer</module>
+        <module>backserver</module>
     </modules>
 
     <properties>

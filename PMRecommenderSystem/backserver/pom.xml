@@ -8,8 +8,8 @@
         <version>2.4.1</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.wzqcode</groupId>
-    <artifactId>backtest</artifactId>
+    <groupId>com.wzqSystem</groupId>
+    <artifactId>backserver</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>backserver</name>
     <description>Demo project for Spring Boot</description>

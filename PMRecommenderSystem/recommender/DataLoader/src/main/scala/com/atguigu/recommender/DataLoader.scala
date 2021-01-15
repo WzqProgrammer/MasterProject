@@ -132,10 +132,10 @@ object DataLoader {
     val movieWithTagsDF = movieDF.join(newTag, Seq("mid", "mid"), "left")
 
     //声明一个ES配置的隐式参数
-    implicit val esConfig = ESConfig(config.get("es.httpHosts").get,
-      config.get("es.transportHosts").get,
-      config.get("es.index").get,
-      config.get("es.cluster.name").get)
+    implicit val esConfig = ESConfig(config("es.httpHosts"),
+      config("es.transportHosts"),
+      config("es.index"),
+      config("es.cluster.name"))
 
     //保存数据到ES
     storeDataInES(movieWithTagsDF)
