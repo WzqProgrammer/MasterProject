@@ -3,6 +3,7 @@ node_modules
 /dist
 target/
 build/
+big_data/
 all_song_data.json
 
 # local env files
