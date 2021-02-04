@@ -3,7 +3,7 @@ spring:
     mongodb:
       host: 192.168.206.100
       port: 27017
-      database: springTest
+      database: PMRecommender
   servlet:
     multipart:
       max-file-size: 10MB

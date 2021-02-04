@@ -15,30 +15,15 @@ import org.elasticsearch.transport.client.PreBuiltTransportClient
 
 
 /*
-*电影ID   mid
-* 电影名称   name
-* 详情描述   descri
-* 时长   timelong
-* 发行时间   issue
-* 拍摄时间   shoot
-* 语言    language
-* 类型    genres
-* 演员表   actors
-* 导演   directors
+*歌曲ID   sid
+*歌曲标签   tags
  */
-
-case class Movie(mid: Int, name: String, descri: String, timelong: String, issue: String,
-                 shoot: String, language: String, genres: String, actors: String, directors: String)
+case class Song(sid: Long, tags: String)
 /*
-*Rating数据集
+*Marking数据 uid,sid,marking,timestamp
 *1,31,2.5,1260759144
  */
-case class Rating(uid: Int, mid: Int, score: Double, timestamp: Int)
-/*
-*Rating数据集
-*15,1955,dentist,1193435061
- */
-case class Tag(uid: Int, mid: Int, tag: String, timestamp: Int)
+case class Marking(uid: Long, sid: Long, marking: Double, timestamp: Int)
 
 //把MongoDB和ES的配置封装成样例类
 /**
@@ -52,34 +37,32 @@ case class MongoConfig(uri:String, db:String)
  * @param httpHosts http主机列表，逗号分隔
  * @param transportHosts   transport主机列表
  * @param index     需要操作的索引
- * @param clustername  集群名称，默认为elasticsearch
+ * @param clusterName  集群名称，默认为elasticsearch
  */
-case class ESConfig(httpHosts:String, transportHosts:String, index:String, clustername:String)
+case class ESConfig(httpHosts:String, transportHosts:String, index:String, clusterName:String)
 
 object DataLoader {
 
   //定义路径常量
-  val MOVIE_DATA_PATH = "D:\\CodeProjects\\GitProjects\\MyRecommenderSystem\\recommender\\DataLoader\\src\\main\\resources\\movies.csv"
-  val RATING_DATA_PATH = "D:\\CodeProjects\\GitProjects\\MyRecommenderSystem\\recommender\\DataLoader\\src\\main\\resources\\ratings.csv"
-  val TAG_DATA_PATH = "D:\\CodeProjects\\GitProjects\\MyRecommenderSystem\\recommender\\DataLoader\\src\\main\\resources\\tags.csv"
+  val SONG_DATA_PATH = "D:\\CodeProjects\\MasterProject\\PMRecommenderSystem\\recommender\\DataLoader\\src\\main\\resources\\data\\songs.csv"
+  val MARKING_DATA_PATH = "D:\\CodeProjects\\MasterProject\\PMRecommenderSystem\\recommender\\DataLoader\\src\\main\\resources\\data\\marking.csv"
 
   //mongodb中的表名
-  val MONGODB_MOVIE_COLLECTION = "Movie"
-  val MONGODB_RATING_COLLECTION = "Rating"
-  val MONGODB_TAG_COLLECTION = "Tag"
+  val MONGODB_SONG_COLLECTION = "Songs"
+  val MONGODB_MARKING_COLLECTION = "Marking"
 
-  val ES_MOVIE_INDEX = "Movie"
+  val ES_SONG_INDEX = "Songs"
 
   def main(args: Array[String]): Unit ={
 
     //定义需要使用的配置参数
     val config = Map(
       "spark.cores" -> "local[*]",
-      "mongo.uri" -> "mongodb://192.168.206.100:27017/recommender",
-      "mongo.db" -> "recommender",
+      "mongo.uri" -> "mongodb://192.168.206.100:27017/musicRecommender",
+      "mongo.db" -> "musicRecommender",
       "es.httpHosts" -> "192.168.206.100:9200",
       "es.transportHosts" -> "192.168.206.100:9300",
-      "es.index" -> "recommender",
+      "es.index" -> "music_recommender",
       "es.cluster.name" -> "elasticsearch"
     )
 
@@ -92,44 +75,41 @@ object DataLoader {
     import spark.implicits._
 
     //加载数据
-    val movieRDD = spark.sparkContext.textFile(MOVIE_DATA_PATH);
-    //将 movieRDD装换为 DataFrame
-    val movieDF = movieRDD.map(
-      item => {
-        val attr = item.split("\\^")
-        Movie(attr(0).toInt, attr(1).trim, attr(2).trim, attr(3).trim, attr(4).trim, attr(5).trim, attr(6).trim, attr(7).trim, attr(8).trim, attr(9).trim)
-      }).toDF()
-
-    val ratingRDD = spark.sparkContext.textFile(RATING_DATA_PATH);
-    //将 ratingDD装换为 DataFrame
-    val ratingDF = ratingRDD.map(
+    val songRDD = spark.sparkContext.textFile(SONG_DATA_PATH);
+    //将 songRDD转换为 DataFrame
+    val songDF = songRDD.map(
       item => {
         val attr = item.split(",")
-        Rating(attr(0).toInt, attr(1).toInt, attr(2).toDouble, attr(3).toInt)
+        Song(attr(0).toLong, attr(1).trim)
       }).toDF()
 
-    val tagRDD = spark.sparkContext.textFile(TAG_DATA_PATH)
-    //将 tagRDD装换为 DataFrame
-    val tagDF = tagRDD.map(item => {
-      val attr = item.split(",")
-      Tag(attr(0).toInt,attr(1).toInt,attr(2).trim,attr(3).toInt)
-    }).toDF()
+    val markingRDD = spark.sparkContext.textFile(MARKING_DATA_PATH);
+    //将 ratingDD装换为 DataFrame
+    val markingDF = markingRDD.map(
+      item => {
+        val attr = item.split(",")
+        Marking(attr(0).toLong, attr(1).toLong, attr(2).toDouble, attr(3).toInt)
+      }).toDF()
+
 
     //声明一个隐式的配置对象 mongodb
-    implicit val mongoConfig = MongoConfig(config.get("mongo.uri").get, config.get("mongo.db").get)
+    implicit val mongoConfig = MongoConfig(config("mongo.uri"), config("mongo.db"))
 
     //将数据保存到MongoDB中
-    storeDataInMongoDB(movieDF, ratingDF, tagDF)
+    storeDataInMongoDB(songDF, markingDF)
 
+
+    // 当前没有tag处理
     //数据预处理，把movie对应的tag信息添加进去，加一列  tag1|tag2|tag3...
-    import org.apache.spark.sql.functions._
+//    import org.apache.spark.sql.functions._
+//
+//    val newTag = tagDF.groupBy($"mid")
+//        .agg(concat_ws("|", collect_set($"tag"))
+//        .as("tags"))
+//        .select("mid", "tags")
+//    //需要将处理后的Tag数据，和Movie数据融合，产生新的Movie数据
+//    val movieWithTagsDF = songDF.join(newTag, Seq("mid", "mid"), "left")
 
-    val newTag = tagDF.groupBy($"mid")
-        .agg(concat_ws("|", collect_set($"tag"))
-        .as("tags"))
-        .select("mid", "tags")
-    //需要将处理后的Tag数据，和Movie数据融合，产生新的Movie数据
-    val movieWithTagsDF = movieDF.join(newTag, Seq("mid", "mid"), "left")
 
     //声明一个ES配置的隐式参数
     implicit val esConfig = ESConfig(config("es.httpHosts"),
@@ -137,26 +117,25 @@ object DataLoader {
       config("es.index"),
       config("es.cluster.name"))
 
-    //保存数据到ES
-    storeDataInES(movieWithTagsDF)
+    //将歌曲信息数据保存到ES
+    storeDataInES(songDF)
 
     spark.stop()
   }
 
-  def storeDataInMongoDB(movieDF:DataFrame, ratingDF:DataFrame, tagDF:DataFrame)
+  def storeDataInMongoDB(songDF:DataFrame, ratingDF:DataFrame)
                         (implicit mongoConfig: MongoConfig): Unit ={
     //新建一个到MongoDB的连接
     val mongoClient = MongoClient(MongoClientURI(mongoConfig.uri))
     //如果MongoDB中存在对应的数据库，应该删除
-    mongoClient(mongoConfig.db)(MONGODB_MOVIE_COLLECTION).dropCollection()
-    mongoClient(mongoConfig.db)(MONGODB_RATING_COLLECTION).dropCollection()
-    mongoClient(mongoConfig.db)(MONGODB_TAG_COLLECTION).dropCollection()
+    mongoClient(mongoConfig.db)(MONGODB_SONG_COLLECTION).dropCollection()
+    mongoClient(mongoConfig.db)(MONGODB_MARKING_COLLECTION).dropCollection()
 
     //将当前数据写入到MongoDB中
-    movieDF
+    songDF
       .write
       .option("uri",mongoConfig.uri)
-      .option("collection", MONGODB_MOVIE_COLLECTION)
+      .option("collection", MONGODB_SONG_COLLECTION)
       .mode("overwrite")
       .format("com.mongodb.spark.sql")
       .save()
@@ -164,34 +143,25 @@ object DataLoader {
     ratingDF
       .write
       .option("uri",mongoConfig.uri)
-      .option("collection",MONGODB_RATING_COLLECTION)
+      .option("collection",MONGODB_MARKING_COLLECTION)
       .mode("overwrite")
       .format("com.mongodb.spark.sql")
       .save()
 
-    tagDF
-      .write
-      .option("uri",mongoConfig.uri)
-      .option("collection",MONGODB_TAG_COLLECTION)
-      .mode("overwrite")
-      .format("com.mongodb.spark.sql")
-      .save()
 
     //对数据表建立索引
-    mongoClient(mongoConfig.db)(MONGODB_MOVIE_COLLECTION).createIndex(MongoDBObject("mid"->1))
-    mongoClient(mongoConfig.db)(MONGODB_RATING_COLLECTION).createIndex(MongoDBObject("uid"->1))
-    mongoClient(mongoConfig.db)(MONGODB_RATING_COLLECTION).createIndex(MongoDBObject("mid"->1))
-    mongoClient(mongoConfig.db)(MONGODB_TAG_COLLECTION).createIndex(MongoDBObject("uid"->1))
-    mongoClient(mongoConfig.db)(MONGODB_TAG_COLLECTION).createIndex(MongoDBObject("mid"->1))
+    mongoClient(mongoConfig.db)(MONGODB_SONG_COLLECTION).createIndex(MongoDBObject("mid"->1))
+    mongoClient(mongoConfig.db)(MONGODB_MARKING_COLLECTION).createIndex(MongoDBObject("uid"->1))
+    mongoClient(mongoConfig.db)(MONGODB_MARKING_COLLECTION).createIndex(MongoDBObject("mid"->1))
 
     //关闭MongoDB连接
     mongoClient.close()
   }
 
-  def storeDataInES(movieDF:DataFrame)(implicit esConfig:ESConfig): Unit ={
+  def storeDataInES(songDF:DataFrame)(implicit esConfig:ESConfig): Unit ={
     //新建一个配置
     val settings:Settings = Settings.builder()
-      .put("cluster.name",esConfig.clustername).build()
+      .put("cluster.name",esConfig.clusterName).build()
     //新建一个ES的客户端
     val esClient = new PreBuiltTransportClient(settings)
 
@@ -212,13 +182,13 @@ object DataLoader {
     esClient.admin().indices().create(new CreateIndexRequest(esConfig.index))
 
     //将数据写入到ES中
-    movieDF
+    songDF
       .write
       .option("es.nodes", esConfig.httpHosts)
       .option("es.http.timeout","100m")
-      .option("es.mapping.id", "mid")
+      .option("es.mapping.id", "sid")
       .mode("overwrite")
       .format("org.elasticsearch.spark.sql")
-      .save(esConfig.index + "/" + ES_MOVIE_INDEX)
+      .save(esConfig.index + "/" + ES_SONG_INDEX)
   }
 }

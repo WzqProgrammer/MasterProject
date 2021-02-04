@@ -8,65 +8,22 @@ import 'element-ui/lib/theme-chalk/index.css'
 // 插件 Element-ui
 Vue.use(ElementUI)
 
+import less from 'less'
+Vue.use(less)
 // 导入全局初始化样式
-import './assets/index.css'
+import './assets/css/index.css'
+import './assets/css/global.css'
+// 导入路由设置
+import router from './route'
 
-// 路由整合
-import VueRouter from 'vue-router'
-Vue.use(VueRouter)
+import storage from './utils/storage'
 
-// 导入对应的路由
-import discovery from './views/01.discovery.vue'
-import playlists from './views/02.playlists.vue'
-import songs from './views/03.songs.vue'
-import mvs from './views/04.mvs.vue'
-import result from './views/05.result.vue'
-import playlist from './views/06.playlist.vue'
-import mv from './views/07.mv.vue'
+import axios from 'axios'
+axios.defaults.baseURL='http://localhost:8081/'
+//每个Vue组件可通过this.$http使用axios
+Vue.prototype.$http = axios
 
-const router = new VueRouter({
-  routes: [
-    {
-      path: '/',
-      redirect: '/discovery'
-    },
-    {
-      // 发现音乐
-      path: '/discovery',
-      component: discovery
-    },
-    {
-      // 推荐歌单
-      path: '/playlists',
-      component: playlists
-    },
-    {
-      // 推荐歌单
-      path: '/playlist',
-      component: playlist
-    },
-    {
-      // 最新音乐
-      path: '/songs',
-      component: songs
-    },
-    {
-      // 最新音乐
-      path: '/mvs',
-      component: mvs
-    },
-    // mv详情
-    {
-      path: '/mv',
-      component: mv
-    },
-    // 搜索结果页
-    {
-      path: '/result',
-      component: result
-    }
-  ]
-})
+Vue.prototype.$storage = storage
 
 Vue.config.productionTip = false
 

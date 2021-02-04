@@ -2,8 +2,8 @@
 node_modules
 /dist
 target/
-build/
 big_data/
+resources/data/
 all_song_data.json
 
 # local env files
@@ -33,6 +33,7 @@ pnpm-debug.log*
 *.zip
 *.tar.gz
 *.log
+*.xlsx
 
 package*
 babel.config.js
