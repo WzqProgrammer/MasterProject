@@ -1,16 +1,6 @@
-body,
-html {
-  font-weight: 400;
-  font-family: Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB,
- Microsoft YaHei, '\5FAE\8F6F\96C5\9ED1', Arial, sans-serif;
-}
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  transition: 0.5s;
-}
+
+
 
 a {
   text-decoration: none;
@@ -82,7 +72,7 @@ ol {
 }
 
 .el-table th:first-child {
-  width: 50px;
+  width: 60px;
 }
 
 .el-table th:nth-child(2) {

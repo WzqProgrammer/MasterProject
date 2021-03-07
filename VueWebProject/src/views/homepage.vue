@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-02-01 11:54:27
- * @LastEditTime: 2021-02-02 16:51:17
+ * @LastEditTime: 2021-02-18 10:34:22
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \VueWebProject\src\views\homepage.vue
@@ -52,10 +52,24 @@
         </div>
       </div>
 
-      <el-main>
-
+      <el-main class="introduce">
+        <div class="introduce-title">
+          <h2>科技与灵感 音乐与图像</h2>
+          <p>艺术不是技艺，它是艺术家体验了的感情的传达，艺术与科学既不同而又互相关联；它们在审美的方面交会</p>
+        </div>
+        <div class="introduce-icons">
+          <img src="../assets/img/relaxed-1.png">
+          <img src="../assets/img/relaxed-2.png">
+          <img src="../assets/img/sad-1.png">
+          <img src="../assets/img/sad-2.png">
+          <img src="../assets/img/fear-1.png">
+          <img src="../assets/img/fear-2.png">
+        </div>
+        <div class="introduce-text"></div>
+        <p>以上的图片均来自游戏内截图，游戏画面与音乐最直接的目的便是引发玩家情感的共鸣，从而提高游玩时的沉浸感</p>
+        <p>悲伤、轻松、恐惧、感动......</p>
+        <p>本系统当前可根据上传的图片识别出其基本情感，并且基于该情感推荐相关音乐，希望您可以为推荐结果做出评价，谢谢！</p>
       </el-main>
-      <el-footer>Footer</el-footer>
     </el-container>
   </div>
 
@@ -66,19 +80,41 @@ import top from "../components/01.top"
 
 export default {
   name: 'homepage',
-  components:{
+  components: {
     top
   }
 }
 </script>
 
-<style scoped>
+<style lang="less" scoped>
+.el-container {
+  display: flex;
+  flex-direction: column;
+}
 
-.el-footer {
+.introduce {
+  display: flex;
+  flex-direction: column;
   background-color: #16355c;
   color: #333;
   text-align: center;
-  line-height: 60px;
+
+  .introduce-icons{
+    display: flex;
+    justify-content: space-between;
+    height: 140px;
+    margin-top: 40px;
+
+    >img{
+      border-radius: 4px;
+      width:140px;
+      height:100%
+    }
+  }
+
+  .introduce-text{
+    margin-top: 40px;
+  }
 }
 
 .el-menu {
@@ -94,6 +130,9 @@ h1 {
 }
 
 #BG {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   margin: 0;
   padding: 0;
   position: relative;
@@ -106,8 +145,16 @@ h1 {
   );
   color: wheat;
 }
+.el-main {
+  height: 600px;
+  position: relative;
+
+
+  background-color: rgb(255, 255, 255);
+
+}
 .lnner-header {
-  height: 65vh;
+  height: 540px;
   width: 100%;
   margin: 0;
   padding: 0;
@@ -120,7 +167,7 @@ h1 {
 .waves {
   position: relative;
   width: 100%;
-  height: 15vh;
+  height: 300px;
   margin-bottom: -7px;
   /* 最小值 */
   min-height: 100px;
@@ -161,8 +208,8 @@ h1 {
 /* 当屏幕小于 768px 执行 */
 @media (max-width: 768px) {
   .waves {
-    height: 40px;
-    min-height: 40px;
+    height: 30%;
+    min-height: 30%;
   }
   h1 {
     font-size: 24px;

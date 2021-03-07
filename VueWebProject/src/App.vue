@@ -22,10 +22,7 @@ export default {
   name: 'app',
   components: {
     top,
-    // index,
     homepage,
-    // login,
-    // musicExperience
   }
 };
 </script>

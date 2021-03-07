@@ -11,7 +11,7 @@ Vue.use(ElementUI)
 import less from 'less'
 Vue.use(less)
 // 导入全局初始化样式
-import './assets/css/index.css'
+// import './assets/css/index.css'
 import './assets/css/global.css'
 // 导入路由设置
 import router from './route'
@@ -19,13 +19,21 @@ import router from './route'
 import storage from './utils/storage'
 
 import axios from 'axios'
-axios.defaults.baseURL='http://localhost:8081/'
+
+// 为axios的请求头添加token
+// axios.interceptors.request.use(config => {
+//   config.headers.Authorization = localStorage.getItem('token')
+//   return config
+// })
+
+
 //每个Vue组件可通过this.$http使用axios
 Vue.prototype.$http = axios
 
 Vue.prototype.$storage = storage
 
 Vue.config.productionTip = false
+
 
 new Vue({
   render: h => h(App),

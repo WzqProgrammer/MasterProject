@@ -74,8 +74,7 @@ export default {
          ],
          repassword:[
             {required:true, validator: validatePass2, trigger: 'blur' },
-         ]
-         
+         ]      
       }
     }
   },
@@ -92,7 +91,7 @@ export default {
       this.$refs.registerFormRef.validate(valid => {
         if(!valid) return;
         //规则验证通过则向服务端发起请求
-        this.$http.post("/user/register", this.registerForm).then((res)=>{
+        this.$http.post("/api/user/register", this.registerForm).then((res)=>{
           console.log(res)
           if(res.data.code==0){
             this.$message.success("注册成功");
@@ -110,7 +109,12 @@ export default {
 
 <style lang="less" scoped>
 .register_container {
-  background-color: #2b4b6b;
+    /* 背景渐变 */
+  background: linear-gradient(
+    60deg,
+    rgb(146, 124, 233) 0%,
+    rgb(6, 166, 187) 100%
+  );
   height: 100%;
 }
 
@@ -148,8 +152,8 @@ export default {
 .register_form {
   position: absolute;
   bottom: 0;
-  width: 100%;
-  padding: 0 20px;
+  width: 80%;
+  margin-left: 30px;
 }
 
 .btns {

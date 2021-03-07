@@ -17,11 +17,15 @@ import ai.djl.training.util.ProgressBar;
 import ai.djl.translate.Pipeline;
 import ai.djl.translate.TranslateException;
 import ai.djl.translate.Translator;
+import org.apache.commons.io.FileUtils;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.ClassUtils;
+import org.springframework.util.ResourceUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 //对神经网络模型的单例
 public class NetModelInstance {
@@ -30,7 +34,11 @@ public class NetModelInstance {
 
     private static ZooModel model;
     private static Predictor predictor;
+    private static String imagePath;
 
+    public String GetImagePath(){
+        return imagePath;
+    }
     private NetModelInstance(){}
 
     public static synchronized NetModelInstance getInstance(){
@@ -60,13 +68,29 @@ public class NetModelInstance {
         //加载模型
 //        System.setProperty("ai.djl.repository.zoo.location", "build/pytorch_models/mobileNet_v2");
 
+//        String modelPath = ResourceUtils.getURL("classpath:").getPath()
+//                +"pytorch_models/" +"mobileNet_v2/"+"mobileNet_v2.pt";
+        ClassPathResource resourceModel = new ClassPathResource("pytorch_models/mobileNet_v2/mobileNet_v2.pt");
+        ClassPathResource resourceSynset = new ClassPathResource("pytorch_models/mobileNet_v2/synset.txt");
+
+        //模型从jar包中复制出来
+        InputStream inputModel = resourceModel.getInputStream();
+        InputStream inputSynset = resourceSynset.getInputStream();
+        File newModelFile = new File("./models/mobileNet_v2.pt");
+        File newSynsetFile = new File("./models/synset.txt");
+
+        FileUtils.copyInputStreamToFile(inputModel, newModelFile);
+        FileUtils.copyInputStreamToFile(inputSynset, newSynsetFile);
+
         Criteria<Image, Classifications> criteria = Criteria.builder()
                 .setTypes(Image.class, Classifications.class)
                 .optTranslator(translator)
-                .optModelUrls("backserver/build/pytorch_models/mobileNet_v2")
-                .optModelName("mobileNet_v2")
+                .optModelUrls(newModelFile.getParentFile().toURI().toURL().toString())
+                .optModelName("mobileNet_v2.pt")
                 .optProgress(new ProgressBar()).build();
         //模型载入
+        System.out.println(criteria.getModelName());
+        System.out.println(criteria.getModelZoo());
         model = ModelZoo.loadModel(criteria);
         //预测器
         predictor = model.newPredictor();
@@ -92,16 +116,16 @@ public class NetModelInstance {
             return false;
         }
         //获取项目classes/static的地址
-        String staticPath = ClassUtils.getDefaultClassLoader().getResource("static").getPath();
+//        String staticPath = ClassUtils.getDefaultClassLoader().getResource("static").getPath();
 
+        File imageDir = new File("./images");
         // 图片存储目录及图片名称
-        String url_path = "images"+File.separator + classLabel + File.separator + newFileName;
+        String url_path = classLabel + File.separator + newFileName;
         //图片保存路径
-        String savePath = staticPath + File.separator + url_path;
+        String savePath = imageDir.getAbsolutePath() + File.separator + url_path;
+        //当前图片的保存路径可被外界访问
+        imagePath = savePath;
         System.out.println("图片保存地址："+savePath);
-        // 访问路径=静态资源路径+文件目录路径
-        String visitPath ="static/" + url_path;
-        System.out.println("图片访问uri："+visitPath);
 
         File saveFile = new File(savePath);
         if (!saveFile.exists()){

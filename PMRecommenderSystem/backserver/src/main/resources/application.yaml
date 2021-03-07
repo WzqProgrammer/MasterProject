@@ -1,13 +1,16 @@
 spring:
   data:
     mongodb:
-      host: 192.168.206.100
+      host: 159.75.89.42
       port: 27017
-      database: PMRecommender
+      database: musicRecommender
   servlet:
     multipart:
       max-file-size: 10MB
       max-request-size: 100MB
+  web:
+    resources:
+      static-locations: classpath:static/,classpath:pytorch_models/,,classpath:admin/
 
 server:
   port: 8081

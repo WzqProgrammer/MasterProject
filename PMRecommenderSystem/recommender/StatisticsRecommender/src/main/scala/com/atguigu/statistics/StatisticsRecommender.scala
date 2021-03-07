@@ -121,7 +121,7 @@ object StatisticsRecommender {
     val songWithScore = songDF.join(maxSongsDF, Seq("sid"))
     //为做笛卡尔积，将emotionGenres转成RDD
     val genresRDD = spark.sparkContext.makeRDD(emotionGenres)
-    //计算类别Top50，首先对类别和音乐做笛卡尔积
+    //为所有类别按评分排序，首先对类别和音乐做笛卡尔积
     val genresTopSongsDF = genresRDD.cartesian(songWithScore.rdd)
         .filter{
           //条件过滤，找出song的字段tags值包含当前类别的那些
@@ -132,7 +132,7 @@ object StatisticsRecommender {
         }
         .groupByKey()
         .map{
-          case (genre, items)=>GenresRecommendation(genre, items.toList.sortWith(_._2 > _._2).take(50).map(item=>Recommendation(item._1, item._2)))
+          case (genre, items)=>GenresRecommendation(genre, items.toList.sortWith(_._2 > _._2).map(item=>Recommendation(item._1, item._2)))
         }
         .toDF()
 

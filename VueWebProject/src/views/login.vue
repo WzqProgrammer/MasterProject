@@ -77,7 +77,7 @@ export default {
       this.$refs.loginFormRef.validate(valid => {
         if(!valid) return;
         //规则验证通过则向服务端发起请求
-        this.$http.post("/user/login", this.loginForm).then((res)=>{
+        this.$http.post("/api/user/login", this.loginForm).then((res)=>{
           console.log(res);
           if(res.data.code==0){
             this.$storage.set("token", res.data.token);
@@ -103,7 +103,12 @@ export default {
 
 <style lang="less" scoped>
 .login_container {
-  background-color: #2b4b6b;
+    /* 背景渐变 */
+  background: linear-gradient(
+    60deg,
+    rgb(146, 124, 233) 0%,
+    rgb(6, 166, 187) 100%
+  );
   height: 100%;
 }
 
@@ -141,8 +146,8 @@ export default {
 .login_form {
   position: absolute;
   bottom: 0;
-  width: 100%;
-  padding: 0 20px;
+  width: 80%;
+  margin-left: 30px;
 }
 
 .btns {

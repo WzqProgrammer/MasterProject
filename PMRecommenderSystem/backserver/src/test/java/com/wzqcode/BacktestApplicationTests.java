@@ -19,7 +19,9 @@ import ai.djl.training.util.ProgressBar;
 import ai.djl.translate.Pipeline;
 import ai.djl.translate.TranslateException;
 import ai.djl.translate.Translator;
+import com.wzqcode.entity.TagSongEntity;
 import com.wzqcode.entity.UserEntity;
+import com.wzqcode.service.TagSongService;
 import com.wzqcode.service.UserService;
 import com.wzqcode.utils.NetModelInstance;
 import lombok.var;
@@ -27,18 +29,51 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.util.ClassUtils;
 
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.*;
 
 @SpringBootTest
 class BacktestApplicationTests {
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private TagSongService tagSongService;
+
+    @Autowired
+    private MongoTemplate mongoTemplate;
+
+    private static HashMap<String, List<String>> tagSongIdMap = new HashMap<>();
+    @Test
+    void mongoFindTest(){
+        String[] tags = new String[]{
+            "诡异","安静", "惊悚"
+        };
+        for (String tag : tags) {
+            selectTagSong(tag);
+        }
+        System.out.println(tagSongIdMap.get("诡异").toString());
+        System.out.println(tagSongIdMap.get("安静").size());
+        System.out.println(tagSongIdMap.get("惊悚").size());
+    }
+
+    void selectTagSong(String tagName){
+        TagSongEntity tagSongEntity = tagSongService.findSongIdsByTag(tagName);
+
+        List<String> sids = new ArrayList<>();
+        for (int i=0;i < tagSongEntity.getRecs().size(); i++) {
+            String sid = tagSongEntity.getRecs().get(i).get("sid").toString();
+            sids.add(sid);
+        };
+        tagSongIdMap.put(tagName, sids);
+    }
 
     @Test
     void mongoSaveTest(){
@@ -136,23 +171,9 @@ class BacktestApplicationTests {
         System.out.println(classifications.best().getClass());
         System.out.println(classifications.best().getProbability());
     }
-    @Test
-    //图片获取测试哦
-    void getImageTest() throws IOException {
-        var img = ImageFactory.getInstance()
-                .fromFile(Paths.get("F:\\JavaProjects\\Vue_SpringBootTest\\backtest\\src\\main\\resources\\static\\images\\dog.png"));
-        //获取打包后文件的路径
-        URL url = new ClassPathResource("static/images/dog.png").getURL();
-        System.out.println(url);
-    }
 
-    @Test
-    void testNetModelInstance() throws IOException, TranslateException, ModelNotFoundException, MalformedModelException {
-        Image img = ImageFactory.getInstance()
-                .fromFile( Paths.get("F:\\JavaProjects\\Vue_SpringBootTest\\backtest\\src\\main\\resources\\static\\images\\fear_1.png"));
-        String result = NetModelInstance.getInstance().getClassification(img);
-        System.out.println(result);
-    }
+
+
 
     @Test
     //路径测试

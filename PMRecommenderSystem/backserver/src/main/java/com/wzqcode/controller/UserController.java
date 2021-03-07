@@ -54,23 +54,5 @@ public class UserController {
         return R.ok();
     }
 
-    @PostMapping("/imageClassification")
-    public List<String> imageClassification(@RequestParam(name = "image_data", required = false) MultipartFile file)
-            throws IOException, TranslateException, ModelNotFoundException, MalformedModelException {
-        if(file.isEmpty()){
-            return null;
-        }
-        Image img = ImageFactory.getInstance().fromInputStream(file.getInputStream());
-        System.out.println(img.getHeight());
-        String result = NetModelInstance.getInstance().getClassification(img);
 
-        //使用当前时间戳为文件命名
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH_mm_ss");//设置日期格式
-        String currentTime = df.format(new Date().getTime());// new Date()为获取当前系统时间，也可使用当前时间戳
-        String imageName = currentTime + ".jpg";
-        //保存图片文件
-        NetModelInstance.getInstance().saveImage(result, imageName,file);
-        //将随机抽取的标签元素返回
-        return LabelsInstance.getLabelsInstance().getLabelResult(result);
-    }
 }

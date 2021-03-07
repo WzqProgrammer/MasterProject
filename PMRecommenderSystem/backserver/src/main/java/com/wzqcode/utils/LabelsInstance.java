@@ -1,31 +1,81 @@
 package com.wzqcode.utils;
 
+import com.wzqcode.entity.TagSongEntity;
+import com.wzqcode.service.TagSongService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
 import java.util.*;
 
 //图像情感相关标签
+@Component
 public class LabelsInstance {
     private static LabelsInstance labelsInstance;
+    private HashMap<String, List<String>> tagSongIdMap = new HashMap<>();
+    private List<String> finalSongIds;
 
     private List<String> relaxedLabelList;
     private List<String> sadLabelList;
     private List<String> fearLabelList;
 
-    private LabelsInstance(){
-        String[] relaxed = new String[]{"轻松", "愉悦", "安静", "清新", "治愈", "舒适", "娴静","放松"};
-        String [] sad = new String[]{"忧郁", "伤感", "感动","忧愁", "孤独", "思念", "悲伤", "萧瑟", "怀念"};
-        String[] fear = new String[]{"阴暗", "恐惧", "痛苦", "不安", "绝望"};
+    private static List<String> resultEmotions;
 
-         relaxedLabelList = Arrays.asList(relaxed);
+    @Autowired
+    private TagSongService tagSongService;
+
+    private LabelsInstance(){
+
+        String[] relaxed = new String[]{"安静", "清新", "欢快", "治愈", "温柔","放松","宁静"};
+        String [] sad = new String[]{"致郁", "伤感", "感动","丧", "孤独", "悲伤", "唯美", "温柔"};
+        String[] fear = new String[]{"诡异","黑暗", "惊悚"};
+
+        relaxedLabelList = Arrays.asList(relaxed);
         sadLabelList = Arrays.asList(sad);
         fearLabelList = Arrays.asList(fear);
+//        initTagSongIdMap();
     }
 
     public static synchronized LabelsInstance getLabelsInstance(){
-        if(labelsInstance==null){
-            labelsInstance = new LabelsInstance();
-            return labelsInstance;
-        }
+//        if(labelsInstance==null){
+//            labelsInstance = new LabelsInstance();
+//            return labelsInstance;
+//        }
         return labelsInstance;
+    }
+    @PostConstruct
+    public void init(){
+        initTagSongIdMap();
+        labelsInstance = this;
+        labelsInstance.tagSongService = this.tagSongService;
+    }
+
+    /**
+     * 初始化标签与其歌曲id的字典
+     */
+    void initTagSongIdMap(){
+        for(String tag: relaxedLabelList){
+            System.out.println(tag);
+            selectTagSong(tag);
+        }
+        for(String tag: sadLabelList){
+            selectTagSong(tag);
+        }
+        for(String tag: fearLabelList){
+            selectTagSong(tag);
+        }
+    }
+
+    void selectTagSong(String tagName){
+
+        TagSongEntity tagSongEntity = tagSongService.findSongIdsByTag(tagName);
+
+        List<String> sids = new ArrayList<>();
+        for (int i=0;i < tagSongEntity.getRecs().size(); i++) {
+            String sid = tagSongEntity.getRecs().get(i).get("sid").toString();
+            sids.add(sid);
+        };
+        tagSongIdMap.put(tagName, sids);
     }
 
     //根据情感标签获取展示标签
@@ -43,7 +93,39 @@ public class LabelsInstance {
             default:
                 break;
         }
-        return result;
+        resultEmotions = result;
+        return resultEmotions;
+    }
+
+
+    //用户可选择的标签
+    public List<String> getSelectedTags() {
+        //从三种情感中分别抽取标签
+        List<String> resultTags = new ArrayList<>();
+        resultTags.addAll(Objects.requireNonNull(randomSelect(2, relaxedLabelList)));
+        resultTags.addAll(Objects.requireNonNull(randomSelect(2, sadLabelList)));
+        resultTags.addAll(Objects.requireNonNull(randomSelect(1, fearLabelList)));
+
+        return resultTags;
+    }
+
+    /**
+     * 推荐相关歌曲id
+     * @return
+     */
+    public List<String> recommendSongs(){
+        if(tagSongIdMap.isEmpty()){
+            initTagSongIdMap();
+        }
+        finalSongIds = new ArrayList<>();
+        for(String tag: resultEmotions){
+            List<String> tempIds = randomSelect(4, tagSongIdMap.get(tag));
+            System.out.println(tag);
+            System.out.println(tempIds);
+            finalSongIds.addAll(tempIds);
+        }
+
+        return finalSongIds;
     }
 
     /**
