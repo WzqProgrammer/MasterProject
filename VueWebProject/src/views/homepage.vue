@@ -70,6 +70,12 @@
         <p>悲伤、轻松、恐惧、感动......</p>
         <p>本系统当前可根据上传的图片识别出其基本情感，并且基于该情感推荐相关音乐，希望您可以为推荐结果做出评价，谢谢！</p>
       </el-main>
+      <el-footer>
+        <a href="https://beian.miit.gov.cn" >
+        <span style="color:white">苏ICP备2021007959号</span>
+        </a>
+        <span style="color:white; margin-left:40px">版权所有 东南大学软件学院</span>
+      </el-footer>
     </el-container>
   </div>
 
@@ -91,6 +97,10 @@ export default {
   display: flex;
   flex-direction: column;
 }
+
+a{text-decoration:none} 
+
+a:hover{text-decoration:none}
 
 .introduce {
   display: flex;
@@ -148,11 +158,15 @@ h1 {
 .el-main {
   height: 600px;
   position: relative;
-
-
   background-color: rgb(255, 255, 255);
-
 }
+.el-footer {
+  justify-content: space-between;
+    background-color: #16355c;
+    color: #333;
+    text-align: center;
+    line-height: 60px;
+  }
 .lnner-header {
   height: 540px;
   width: 100%;
