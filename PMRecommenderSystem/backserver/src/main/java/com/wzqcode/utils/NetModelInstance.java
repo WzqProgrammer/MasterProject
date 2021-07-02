@@ -66,10 +66,6 @@ public class NetModelInstance {
                 .optApplySoftmax(true)
                 .build();
         //加载模型
-//        System.setProperty("ai.djl.repository.zoo.location", "build/pytorch_models/mobileNet_v2");
-
-//        String modelPath = ResourceUtils.getURL("classpath:").getPath()
-//                +"pytorch_models/" +"mobileNet_v2/"+"mobileNet_v2.pt";
         ClassPathResource resourceModel = new ClassPathResource("pytorch_models/mobileNet_v2/mobileNet_v2.pt");
         ClassPathResource resourceSynset = new ClassPathResource("pytorch_models/mobileNet_v2/synset.txt");
 
@@ -81,7 +77,7 @@ public class NetModelInstance {
 
         FileUtils.copyInputStreamToFile(inputModel, newModelFile);
         FileUtils.copyInputStreamToFile(inputSynset, newSynsetFile);
-
+        //构建模型相关结构
         Criteria<Image, Classifications> criteria = Criteria.builder()
                 .setTypes(Image.class, Classifications.class)
                 .optTranslator(translator)
@@ -89,8 +85,6 @@ public class NetModelInstance {
                 .optModelName("mobileNet_v2.pt")
                 .optProgress(new ProgressBar()).build();
         //模型载入
-        System.out.println(criteria.getModelName());
-        System.out.println(criteria.getModelZoo());
         model = ModelZoo.loadModel(criteria);
         //预测器
         predictor = model.newPredictor();
