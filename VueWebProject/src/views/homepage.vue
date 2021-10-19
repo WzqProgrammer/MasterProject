@@ -74,7 +74,7 @@
         <a href="https://beian.miit.gov.cn" >
         <span style="color:white">苏ICP备2021007959号</span>
         </a>
-        <span style="color:white; margin-left:40px">版权所有 东南大学软件学院</span>
+        <span style="color:white; margin-left:40px">© 2021 WangZhengqing AllRightsReserved.</span>
       </el-footer>
     </el-container>
   </div>

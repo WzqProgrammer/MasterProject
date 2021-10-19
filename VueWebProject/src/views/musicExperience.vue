@@ -278,7 +278,7 @@ export default {
         }
       }
       axios({
-        url: 'https://autumnfish.cn/song/detail',
+        url: 'http://cloud-music.pl-fe.cn/song/detail',
         method: 'get',
         params: {
           ids: str_ids,
@@ -308,7 +308,7 @@ export default {
     //播放音乐
     playMusic(row, event) {
       axios({
-        url: 'https://autumnfish.cn/song/url',
+        url: 'http://cloud-music.pl-fe.cn/song/url',
         method: 'get',
         params: {
           id: row.id,
